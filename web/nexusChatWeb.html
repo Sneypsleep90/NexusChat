@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Chat</title>
+    <style>
+        :root {
+            --primary: #2a9d8f;
+            --primary-dark: #1f7a6f;
+            --bg-dark: #0f1419;
+            --bg-light: #1a1f26;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --message-user: #2a9d8f;
+            --message-other: #264653;
+            --border: #2a2f38;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4ade80;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 16px;
+            padding: 16px;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-light);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .users-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .user-item {
+            padding: 12px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .user-item:hover {
+            background-color: rgba(42, 157, 143, 0.1);
+        }
+
+        .user-item.active {
+            background-color: rgba(42, 157, 143, 0.2);
+            color: var(--primary);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* Chat area */
+        .chat-area {
+            flex: 1;
+            background-color: var(--bg-light);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            gap: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.own {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 65%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .message.own .message-bubble {
+            background-color: var(--message-user);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.other .message-bubble {
+            background-color: var(--message-other);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-sender {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+
+        .message.own .message-sender {
+            text-align: right;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* Input area */
+        .input-area {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-form {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .input-field {
+            flex: 1;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 14px;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Scrollbar */
+        .chat-messages::-webkit-scrollbar,
+        .users-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track,
+        .users-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb,
+        .users-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover,
+        .users-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(42, 157, 143, 0.3);
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 120px;
+            }
+
+            .chat-area {
+                flex: 1;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px 14px;
+            background-color: var(--message-other);
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-secondary);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">Nexus Chat</div>
+        <div class="header-status">
+            <div class="status-indicator"></div>
+            <span id="connectionStatus">Подключено</span>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">👥 Пользователи онлайн</div>
+            <div class="users-list" id="usersList">
+                <div class="empty-state">
+                    <div style="font-size: 12px;">Ожидание подключения...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat area -->
+        <div class="chat-area">
+            <div class="chat-messages" id="chatMessages">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <div>Добро пожаловать в Nexus Chat!</div>
+                    <div style="font-size: 12px; margin-top: 8px; opacity: 0.7;">Введите имя и начните общаться</div>
+                </div>
+            </div>
+
+            <!-- Input area -->
+            <div class="input-area">
+                <form class="input-form" id="messageForm">
+                    <input
+                            type="text"
+                            class="input-field"
+                            id="messageInput"
+                            placeholder="Введите сообщение..."
+                            autocomplete="off"
+                    >
+                    <button type="submit" class="send-btn" id="sendBtn">Отправить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // WebSocket connection
+    let socket = null;
+    let currentUser = null;
+    let messageCount = 0;
+
+    // Initialize chat
+    function init() {
+        const username = prompt('Введите ваше имя:') || `Пользователь ${Math.floor(Math.random() * 1000)}`;
+        currentUser = username;
+
+        // Connect to WebSocket
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = () => {
+            console.log('Подключено к серверу');
+            document.getElementById('connectionStatus').textContent = 'Подключено';
+            document.querySelector('.status-indicator').style.backgroundColor = '#4ade80';
+
+            // Send username to server
+            socket.send(JSON.stringify({
+                type: 'join',
+                username: currentUser
+            }));
+
+            // Clear empty state
+            const chatMessages = document.getElementById('chatMessages');
+            if (chatMessages.querySelector('.empty-state')) {
+                chatMessages.innerHTML = '';
+            }
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            switch (data.type) {
+                case 'message':
+                    addMessage(data.username, data.text, data.username === currentUser);
+                    break;
+                case 'users':
+                    updateUsersList(data.users);
+                    break;
+                case 'user-joined':
+                    addSystemMessage(`${data.username} присоединился к чату`);
+                    break;
+                case 'user-left':
+                    addSystemMessage(`${data.username} покинул чат`);
+                    break;
+            }
+        };
+
+        socket.onerror = (error) => {
+            console.error('WebSocket ошибка:', error);
+            document.getElementById('connectionStatus').textContent = 'Ошибка подключения';
+            document.querySelector('.status-indicator').style.backgroundColor = '#ef4444';
+        };
+
+        socket.onclose = () => {
+            console.log('Отключено от сервера');
+            document.getElementById('connectionStatus').textContent = 'Отключено';
+            document.querySelector('.status-indicator').style.backgroundColor = '#ef4444';
+        };
+
+        // Message form handler
+        document.getElementById('messageForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            sendMessage();
+        });
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+
+        if (!message || !socket || socket.readyState !== WebSocket.OPEN) return;
+
+        socket.send(JSON.stringify({
+            type: 'message',
+            text: message,
+            username: currentUser
+        }));
+
+        input.value = '';
+        input.focus();
+    }
+
+    function addMessage(username, text, isOwn = false) {
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Remove empty state if present
+        const emptyState = chatMessages.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        const messageEl = document.createElement('div');
+        messageEl.className = `message ${isOwn ? 'own' : 'other'}`;
+
+        const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+        messageEl.innerHTML = `
+                <div class="message-content">
+                    ${!isOwn ? `<div class="message-sender">${username}</div>` : ''}
+                    <div class="message-bubble">${escapeHtml(text)}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+        chatMessages.appendChild(messageEl);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addSystemMessage(text) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageEl = document.createElement('div');
+        messageEl.style.textAlign = 'center';
+        messageEl.style.color = 'var(--text-secondary)';
+        messageEl.style.fontSize = '12px';
+        messageEl.style.padding = '8px';
+        messageEl.innerHTML = `<em>${text}</em>`;
+        chatMessages.appendChild(messageEl);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function updateUsersList(users) {
+        const usersList = document.getElementById('usersList');
+        usersList.innerHTML = '';
+
+        if (users.length === 0) {
+            usersList.innerHTML = '<div class="empty-state"><div style="font-size: 12px;">Нет активных пользователей</div></div>';
+            return;
+        }
+
+        users.forEach(user => {
+            const userEl = document.createElement('div');
+            userEl.className = `user-item ${user === currentUser ? 'active' : ''}`;
+            userEl.innerHTML = `
+                    <div class="user-avatar">${user.charAt(0).toUpperCase()}</div>
+                    <span>${user}</span>
+                `;
+            usersList.appendChild(userEl);
+        });
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Start initialization on page load
+    window.addEventListener('load', init);
+</script>
+</body>
+</html>
