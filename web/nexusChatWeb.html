@@ -375,10 +375,242 @@
             0%, 60%, 100% { opacity: 0.3; }
             30% { opacity: 1; }
         }
+
+        /* Auth Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 20, 25, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .auth-modal.hidden {
+            display: none;
+        }
+
+        .auth-modal-content {
+            background: linear-gradient(135deg, var(--bg-light) 0%, #1f2730 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 0;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            gap: 0;
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .auth-tab-btn.active {
+            color: var(--primary);
+        }
+
+        .auth-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .auth-tab-btn:hover {
+            background: rgba(42, 157, 143, 0.05);
+        }
+
+        .auth-form {
+            padding: 32px;
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .auth-form h2 {
+            margin: 0 0 24px 0;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
+            background-color: rgba(42, 157, 143, 0.02);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .auth-submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+        }
+
+        .auth-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .form-message {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        .form-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .form-message.success {
+            background: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        /* Logout button */
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--text-secondary);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container" id="appContainer">
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-content">
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" data-tab="login">Вход</button>
+                <button class="auth-tab-btn" data-tab="register">Регистрация</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <h2>Вход в Nexus Chat</h2>
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="auth-submit-btn">Войти</button>
+                <div class="form-message" id="loginMessage"></div>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="registerForm" class="auth-form">
+                <h2>Регистрация</h2>
+                <div class="form-group">
+                    <label for="registerUsername">Имя пользователя:</label>
+                    <input type="text" id="registerUsername" name="username" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Пароль:</label>
+                    <input type="password" id="registerPassword" name="password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="registerConfirm">Подтверждение пароля:</label>
+                    <input type="password" id="registerConfirm" name="confirm" required minlength="6">
+                </div>
+                <button type="submit" class="auth-submit-btn">Зарегистрироваться</button>
+                <div class="form-message" id="registerMessage"></div>
+            </form>
+        </div>
+    </div>
+
     <!-- Header -->
     <div class="header">
         <div class="header-title">Nexus Chat</div>
@@ -386,6 +618,7 @@
             <div class="status-indicator"></div>
             <span id="connectionStatus">Подключено</span>
         </div>
+        <button class="logout-btn" id="logoutBtn">Выход</button>
     </div>
 
     <!-- Main content -->
@@ -431,16 +664,132 @@
     // WebSocket connection
     let socket = null;
     let currentUser = null;
-    let messageCount = 0;
+    let authToken = null;
+
+    // Setup auth event listeners
+    function setupAuthEvents() {
+        // Tab switching
+        document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                btn.classList.add('active');
+                const tabName = btn.dataset.tab;
+                document.getElementById(tabName + 'Form').classList.add('active');
+            });
+        });
+
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            login(email, password);
+        });
+
+        // Register form
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirm = document.getElementById('registerConfirm').value;
+
+            if (password !== confirm) {
+                showMessage('registerMessage', 'Пароли не совпадают', 'error');
+                return;
+            }
+
+            register(username, email, password);
+        });
+
+        // Logout button
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+    }
+
+    function login(email, password) {
+        const messageEl = document.getElementById('loginMessage');
+        messageEl.textContent = 'Вход в систему...';
+        messageEl.className = '';
+
+        fetch('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.token) {
+                    authToken = data.token;
+                    currentUser = data.username;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('username', currentUser);
+                    initChat();
+                    document.getElementById('authModal').classList.add('hidden');
+                } else {
+                    showMessage('loginMessage', data.error || 'Ошибка входа', 'error');
+                }
+            })
+            .catch(err => showMessage('loginMessage', 'Ошибка сети', 'error'));
+    }
+
+    function register(username, email, password) {
+        const messageEl = document.getElementById('registerMessage');
+        messageEl.textContent = 'Регистрация...';
+        messageEl.className = '';
+
+        fetch('/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.token) {
+                    authToken = data.token;
+                    currentUser = data.username;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('username', currentUser);
+                    initChat();
+                    document.getElementById('authModal').classList.add('hidden');
+                } else {
+                    showMessage('registerMessage', data.error || 'Ошибка регистрации', 'error');
+                }
+            })
+            .catch(err => showMessage('registerMessage', 'Ошибка сети', 'error'));
+    }
+
+    function logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('username');
+        authToken = null;
+        currentUser = null;
+
+        if (socket) {
+            socket.close();
+        }
+
+        document.getElementById('authModal').classList.remove('hidden');
+        document.getElementById('chatMessages').innerHTML = '';
+        document.getElementById('usersList').innerHTML = '';
+        document.getElementById('loginForm').reset();
+        document.getElementById('registerForm').reset();
+
+        // Switch to login tab
+        document.querySelector('[data-tab="login"]').click();
+    }
+
+    function showMessage(elementId, text, type) {
+        const el = document.getElementById(elementId);
+        el.textContent = text;
+        el.className = 'form-message ' + type;
+    }
 
     // Initialize chat
-    function init() {
-        const username = prompt('Введите ваше имя:') || `Пользователь ${Math.floor(Math.random() * 1000)}`;
-        currentUser = username;
-
-        // Connect to WebSocket
+    function initChat() {
+        // Connect to WebSocket with auth token
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        const wsUrl = `${protocol}//${window.location.host}/ws?token=${authToken}`;
 
         socket = new WebSocket(wsUrl);
 
@@ -448,12 +797,6 @@
             console.log('Подключено к серверу');
             document.getElementById('connectionStatus').textContent = 'Подключено';
             document.querySelector('.status-indicator').style.backgroundColor = '#4ade80';
-
-            // Send username to server
-            socket.send(JSON.stringify({
-                type: 'join',
-                username: currentUser
-            }));
 
             // Clear empty state
             const chatMessages = document.getElementById('chatMessages');
@@ -586,7 +929,22 @@
     }
 
     // Start initialization on page load
-    window.addEventListener('load', init);
+    window.addEventListener('load', () => {
+        setupAuthEvents();
+
+        // Check if user already logged in
+        const savedToken = localStorage.getItem('authToken');
+        const savedUser = localStorage.getItem('username');
+
+        if (savedToken && savedUser) {
+            authToken = savedToken;
+            currentUser = savedUser;
+            document.getElementById('authModal').classList.add('hidden');
+            initChat();
+        } else {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+    });
 </script>
 </body>
 </html>
